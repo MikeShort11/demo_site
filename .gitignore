@@ -1,0 +1,43 @@
+# Node modules (if you use npm or yarn)
+node_modules/
+
+# Frontend-related ignores
+# Ignore all files in the frontend folder except specific assets
+frontend/node_modules/
+frontend/.env
+frontend/*.log
+frontend/*.tmp
+
+# Ignore frontend build/output (e.g., if using a bundler like Webpack)
+frontend/dist/
+frontend/build/
+
+# Python-specific ignores (for the backend)
+# Ignore Python bytecode and cache files
+*.pyc
+*.pyo
+__pycache__/
+
+# Python virtual environments (venv)
+venv/
+*.venv/
+env/
+*.env/
+
+# Ignore Django / Flask specific settings (if applicable)
+*.sqlite3
+*.db
+*.log
+
+# Ignore IDE/editor-related files (like VS Code, PyCharm)
+.vscode/
+.idea/
+*.swp
+
+# Ignore OS-specific files (e.g., macOS, Windows)
+.DS_Store
+Thumbs.db
+
+# Ignore backend-specific log files
+backend/*.log
+

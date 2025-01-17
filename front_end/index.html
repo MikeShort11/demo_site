@@ -141,6 +141,19 @@
 	<footer>
 		<p>&copy; 2025 Lemonade Bliss. All rights reserved.</p>
 	</footer>
+
+	<script>
+		async function fetchMenu() {
+			try {
+				const response = await fetch('http://127.0.0.1:8000/menu');
+				const menu = await response.json();
+				alert(`Our menu includes: ${menu.items.join(', ')}`);
+			} catch (error) {
+				console.error('Error fetching menu:', error);
+			}
+		}
+		document.querySelector('button').addEventListener('click', fetchMenu);
+	</script>
 </body>
 
 </html>
