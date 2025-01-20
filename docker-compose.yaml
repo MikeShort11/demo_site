@@ -1,0 +1,72 @@
+version: "3.7"
+services:
+  traefik:
+    image: traefik:v2.5
+    container_name: traefik
+    command:
+      - --api.insecure=false
+      - --providers.docker=true
+      - --providers.docker.network=web
+      - --entrypoints.web.address=:80
+      - --entrypoints.websecure.address=:443
+      - --certiricatesresolvers.myresolver.acme.tlschallenge=true
+      - --certiricatesresolvers.myresolver.acme.email=michael.short094@gmail.com
+      - --certiricatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./letsencrypt:/letsencrypt
+    networks:
+      - web
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.frontend.rule=PathPrefix('/')
+      - traefik.http.routers.frontend.entrypoints=web
+      - traefik.http.routers.tls.certresolver=myresolver
+      - traefik.http.services.php.loadbalancer.server.port=80
+
+
+  frontend:
+    image: nginx:alpine
+    volumes:
+      - ./html:./usr/share/nginx/html:ro
+    networks:
+      - web
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.frontend.rule=PathPrefix(`/`)
+      - traefik.http.services.frontend.loadbalancer.server.port=80
+      - traefik.http.routers.frontend.entrypoints=web
+                                        
+  
+  php:
+    image: php:8.0-apache
+    depends_on: 
+      - traefik
+    volumes:
+      - ./php:/var/www/html
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.php.entrypoints=websecure
+      - traefik.http.routers.php.tls=true
+      - traefik.http.routers.tls.certresolver=myresolver
+      - traefik.http.services.php.loadbalancer.server.port=80
+    networks:
+      - web
+
+  python-api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.python-api.entrypoints=websecure
+      - traefik.http.routers.tls=true
+      - traefik.http.routers.tls.certresolver=myresolver
+      - traefik.http.services.python-api.loadbalancer.server.port=8000
+networks:
+  web:
+    driver: bridge
+    
